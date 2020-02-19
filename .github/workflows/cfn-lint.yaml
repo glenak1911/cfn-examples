@@ -23,6 +23,11 @@ jobs:
       - name: Lint YAML
         run: yamllint -d relaxed ./*
 
+      - name: Run cfn-lint
+        uses: docker://scottbrenner/cfn-lint-action:latest
+        with:
+          args: ./**/*.yaml
+
       # Install cfn-validator
 #      - name: Install cfn-validator
 #        run: pip install cloudformation-validator
@@ -45,11 +50,6 @@ jobs:
       # can configure to single file or all files in a directory
 #      - name: Lint Template
 #        run: cfn-lint -I Jenkins/*.yaml --region us-east-1
-
-      - name: Run cfn-lint
-        uses: docker://scottbrenner/cfn-lint-action:latest
-        with:
-          args: ./**/*.yaml
 
 # Can't use awscli without configuring credentials
 #      # Run the linter
