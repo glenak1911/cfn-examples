@@ -21,22 +21,26 @@ jobs:
       - name: Install cfn-validator
         run: pip install cloudformation-validator
 
-      # Install cfn-validator
-      - name: Install awscli
-        run: pip install awscli
+#      # Install cfn-validator
+#      - name: Install awscli
+#        run: pip install awscli
 
       # Install cfn-lint
-      - name: Install pylint
+      - name: Install cfn-lint
         run: pip install cfn-lint 
 
       # Run validator
+      # configured to a directory, can be configured to single file with -f option
       - name: Validate Template
-        run: cfn-validator validate -f Jenkins/jenkins_single_instance_basic.yaml
+        run: cfn-validator validate -t Jenkins
 
       # Run the linter
+      # Currently failing on warnings, can supress this wil --ignore-checks W for suppression of all warnings
+      # can configure to single file or all files in a directory
       - name: Lint Template
-        run: cfn-lint --template Jenkins/jenkins_single_instance_basic.yaml --region us-east-1 --ignore-checks W
+        run: cfn-lint Jenkins/*.yaml --region us-east-1
 
-      # Run the linter
-      - name: Lint Template
-        run: aws cloudformation validate-template --template-body file://./Jenkins/jenkins_single_instance_basic.yaml
+# Can't use awscli without configuring credentials
+#      # Run the linter
+#      - name: Lint Template
+#        run: aws cloudformation validate-template --template-body file://./Jenkins/jenkins_single_instance_basic.yaml --region us-east-1
