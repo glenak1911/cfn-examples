@@ -19,10 +19,10 @@ jobs:
 
       # Install cfn-validator
       - name: Install cfn-validator
-        run: pip install cfn-validator
+        run: pip install cloudformation-validator
 
       # Install cfn-validator
-      - name: Install cfn-validator
+      - name: Install awscli
         run: pip install awscli
 
       # Install cfn-lint
@@ -31,7 +31,7 @@ jobs:
 
       # Run validator
       - name: Validate Template
-        run: cfn-validator --f Jenkins/jenkins_single_instance_basic.yaml
+        run: cfn-validator validate -f Jenkins/jenkins_single_instance_basic.yaml
 
       # Run the linter
       - name: Lint Template
@@ -39,4 +39,4 @@ jobs:
 
       # Run the linter
       - name: Lint Template
-        run: aws cloudformation validate --template-body file://./Jenkins/jenkins_single_instance_basic.yaml
+        run: aws cloudformation validate-template --template-body file://./Jenkins/jenkins_single_instance_basic.yaml
