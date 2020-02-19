@@ -34,7 +34,7 @@ Resources:
               - 'sts:AssumeRole'
       #ManagedPolicyArns: !Ref JenkinsManagedPolicy
       Policies:
-        - PolicyName: gk-jenkins-policy
+        - PolicyName: gk-jenkins-policy 
           PolicyDocument:
             Version: 2012-10-17
             Statement:

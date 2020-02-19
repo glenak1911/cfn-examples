@@ -27,7 +27,7 @@ jobs:
 
       # Install cfn-lint
       - name: Install cfn-lint
-        run: pip install cfn-lint 
+        run: pip install cfn-lint
 
       # Run validator
       # configured to a directory, can be configured to single file with -f option
