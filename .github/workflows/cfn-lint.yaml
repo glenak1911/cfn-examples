@@ -1,0 +1,42 @@
+---
+name: Run Linter
+on: [push]
+
+jobs:
+  linting:
+    name: Lint CFN
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the current repo
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Use Python3.6 environment
+      - name: Setup Python 3.6
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.6'
+
+      # Install cfn-validator
+      - name: Install cfn-validator
+        run: pip install cfn-validator
+
+      # Install cfn-validator
+      - name: Install cfn-validator
+        run: pip install awscli
+
+      # Install cfn-lint
+      - name: Install pylint
+        run: pip install cfn-lint 
+
+      # Run validator
+      - name: Validate Template
+        run: cfn-validator --f Jenkins/jenkins_single_instance_basic.yaml
+
+      # Run the linter
+      - name: Lint Template
+        run: cfn-lint --template Jenkins/jenkins_single_instance_basic.yaml --region us-east-1 --ignore-checks W
+
+      # Run the linter
+      - name: Lint Template
+        run: aws cloudformation validate --template-body file://./Jenkins/jenkins_single_instance_basic.yaml

@@ -1,0 +1,154 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  JenkinsImageId:
+    Description: Base image to use
+    Type: String
+    Default: ""
+  AWSKey:
+    Description: EC2 Key ID
+    Type: String
+    Default: ""
+  SubnetIds:
+    Description: Subnet ID list
+    Type: String
+    Default: ""
+  VpcIdInput:
+    Description: VPC ID
+    Type: String
+    Default: ""
+
+Resources:
+  JenkinsIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      #ManagedPolicyArns: !Ref JenkinsManagedPolicy
+      Policies:
+        - PolicyName: gk-jenkins-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ec2:DescribeInstances'
+                  - 'ec2:DescribeKeyPairs'
+                  - 'ec2:DescribeInstances'
+                  - 'ec2:GetLaunchTemplateData'
+                  - 'ec2:RunInstances'
+                  - 'ec2:StartInstances'
+                Resource: "*"
+#  JenkinsManagedPolicy:
+#    Type: AWS::IAM::ManagedPolicy
+#    Properties:
+#      Description: Jenkins Managed Policy
+#      PolicyDocument:
+#        Version: 2017-10-07
+#        Statement:
+#          - Effect: Allow
+#            Action:
+#              - 'ec2:DescribeInstances'
+#              - 'ec2:DescribeKeyPairs'
+#              - 'ec2:DescribeInstances'
+#              - 'ec2:GetLaunchTemplateData'
+#              - 'ec2:RunInstances'
+#              - 'ec2:StartInstances'
+#            Resource: "*"
+#      Roles:
+#        - !Ref JenkinsIAMRole
+  JenkinsInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref JenkinsIAMRole
+  JenkinsInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: m5.large
+      ImageId: !Ref JenkinsImageId
+      IamInstanceProfile: !Ref JenkinsInstanceProfile
+      SecurityGroupIds:
+        - !GetAtt JenkinsSecGrp.GroupId
+      KeyName: !Ref AWSKey
+      SubnetId: !Ref SubnetIds
+      UserData: !Base64 |
+        #!/bin/bash
+        # verbose display and exit on error
+        set -ex
+        # Update yum and install java 8 and remove openjdk java 7
+        yum -y update
+        yum -y install java-1.8.0
+        yum -y remove java-1.7.0-openjdk
+        # Add Jenkins repo
+        sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
+        # Add Jenkins GPG key
+        sudo rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
+        # Install and start Jenkins
+        sudo yum -y install jenkins
+        sudo service jenkins start
+        sudo chkconfig --add jenkins
+  #JenkinsElasticIP:
+  #  Type: AWS::EC2::EIP
+  #  Properties:
+  #    Domain: vpc
+  #    InstanceId: !Ref JenkinsInstance
+  #JenkinsEIPAssoc:
+  #  Type: AWS::EC2::EIPAssociation
+  #  Properties:
+  #    AllocationId: !GetAtt JenkinsElasticIP.AllocationId
+  #    InstanceId: !Ref JenkinsInstance
+  JenkinsSecGrp:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: gk_jenkins_sg
+      GroupDescription: "GK Jenkins SG"
+      SecurityGroupIngress:
+        - CidrIp: 72.225.196.48/32
+          IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+        - CidrIp: 72.225.196.48/32
+          IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22        
+        - CidrIp: 12.182.246.98/32
+          IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+        - CidrIp: 12.182.246.98/32
+          IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+      VpcId: !Ref VpcIdInput
+
+Outputs:
+  JenkinsIAMRole:
+    Description: Jenkins Role ARN
+    Value: !Ref JenkinsIAMRole
+#  JenkinsManagedPolicy:
+#    Description: Jenkins Managed Policy`
+#    Value: !Ref JenkinsManagedPolicy
+  JenkinsInstanceProfile:
+    Description: Jenkins Instance Profile
+    Value: !Ref JenkinsInstanceProfile
+  JenkinsInstance:
+    Description: Jenkins Instance ARN
+    Value: !GetAtt JenkinsInstance.PublicDnsName
+ # JenkinsElasticIP:
+ #   Description: Jenkins Public IP
+ #   Value: !Ref JenkinsElasticIP
+ # JenkinsEIPAssoc:
+ #   Description: Jenkins EIP Association
+ #   Value: !Ref JenkinsEIPAssoc
+  JenkinsSG:
+    Description: Jenkins Security Group
+    Value: !Ref JenkinsSecGrp
