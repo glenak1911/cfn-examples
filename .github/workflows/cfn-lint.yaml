@@ -21,7 +21,7 @@ jobs:
         run: pip install yamllint
 
       - name: Lint YAML
-        run: yamllint ./*
+        run: yamllint -d relaxed ./*
 
       # Install cfn-validator
 #      - name: Install cfn-validator

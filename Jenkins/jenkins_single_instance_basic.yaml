@@ -32,9 +32,9 @@ Resources:
                 - ec2.amazonaws.com
             Action:
               - 'sts:AssumeRole'
-      #ManagedPolicyArns: !Ref JenkinsManagedPolicy
+      # ManagedPolicyArns: !Ref JenkinsManagedPolicy
       Policies:
-        - PolicyName: gk-jenkins-policy 
+        - PolicyName: gk-jenkins-policy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -119,7 +119,7 @@ Resources:
         - CidrIp: 72.225.196.48/32
           IpProtocol: tcp
           FromPort: 22
-          ToPort: 22        
+          ToPort: 22
         - CidrIp: 12.182.246.98/32
           IpProtocol: tcp
           FromPort: 8080
