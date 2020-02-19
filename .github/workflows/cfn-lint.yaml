@@ -12,33 +12,37 @@ jobs:
         uses: actions/checkout@v2
 
       # Use Python3.6 environment
-      - name: Setup Python 3.6
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.6'
+#      - name: Setup Python 3.6
+#        uses: actions/setup-python@v1
+#        with:
+#          python-version: '3.6'
 
       # Install cfn-validator
-      - name: Install cfn-validator
-        run: pip install cloudformation-validator
+#      - name: Install cfn-validator
+#        run: pip install cloudformation-validator
 
 #      # Install cfn-validator
 #      - name: Install awscli
 #        run: pip install awscli
 
       # Install cfn-lint
-      - name: Install cfn-lint
-        run: pip install cfn-lint
+ #     - name: Install cfn-lint
+ #       run: pip install cfn-lint
 
       # Run validator
       # configured to a directory, can be configured to single file with -f option
-      - name: Validate Template
-        run: cfn-validator validate -t Jenkins
+#      - name: Validate Template
+#        run: cfn-validator validate -t Jenkins
 
       # Run the linter
       # Currently failing on warnings, can supress this wil --ignore-checks W for suppression of all warnings
       # can configure to single file or all files in a directory
-      - name: Lint Template
-        run: cfn-lint Jenkins/*.yaml --region us-east-1
+#      - name: Lint Template
+#        run: cfn-lint -I Jenkins/*.yaml --region us-east-1
+      - name: cfn-lint
+        uses: docker://scottbrenner/cfn-lint-action:latest
+        with:
+          args: ./**/*.yaml
 
 # Can't use awscli without configuring credentials
 #      # Run the linter
