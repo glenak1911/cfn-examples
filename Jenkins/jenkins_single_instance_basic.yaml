@@ -4,7 +4,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   JenkinsImageId:
     Description: Base image to use
-    Type: String
+    Type: AWS::EC2::Image::Id
     Default: ""
   AWSKey:
     Description: EC2 Key ID
