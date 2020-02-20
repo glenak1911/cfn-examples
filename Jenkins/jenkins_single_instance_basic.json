@@ -24,10 +24,10 @@
     },
     "Resources": {
         "JenkinsIAMRole": {
-            "Type": "AWS::IAM::Role",
+            "Type": "AWS::IAM::Role,
             "Properties": {
                 "AssumeRolePolicyDocument": {
-                    "Version": "2012-10-17",
+                    "Version": ",2012-10-17",
                     "Statement": [
                         {
                             "Effect": "Allow",
@@ -46,7 +46,7 @@
                     {
                         "PolicyName": "gk-jenkins-policy",
                         "PolicyDocument": {
-                            "Version": "2012-10-17",
+                            "Version": ",2012-10-17",
                             "Statement": [
                                 {
                                     "Effect": "Allow",
