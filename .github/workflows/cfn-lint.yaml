@@ -24,7 +24,7 @@ jobs:
         run: yamllint -d relaxed ./*
 
       - name: Lint JSON
-        run: python -m json.tool ./*/*.json
+        run: python -m json.tool ./**/*.json
 
       - name: Run cfn-lint on yaml
         uses: docker://scottbrenner/cfn-lint-action:latest
@@ -36,6 +36,7 @@ jobs:
         uses: docker://scottbrenner/cfn-lint-action:latest
         with:
           args: ./**/*.json
+
       # Install cfn-validator
 #      - name: Install cfn-validator
 #        run: pip install cloudformation-validator
