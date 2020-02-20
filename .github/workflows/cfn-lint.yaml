@@ -21,7 +21,7 @@ jobs:
         run: pip install yamllint
 
       - name: Lint YAML
-        run: yamllint -d relaxed ./*
+        run: yamllint ./*
 
       - name: Lint JSON
         run: python -m json.tool ./**/*.json
