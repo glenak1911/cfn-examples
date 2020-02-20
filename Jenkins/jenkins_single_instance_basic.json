@@ -1,0 +1,174 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "JenkinsImageId": {
+            "Description": "Base image to use",
+            "Type": "String",
+            "Default": ""
+        },
+        "AWSKey": {
+            "Description": "EC2 Key ID",
+            "Type": "String",
+            "Default": ""
+        },
+        "SubnetIds": {
+            "Description": "Subnet ID list",
+            "Type": "String",
+            "Default": ""
+        },
+        "VpcIdInput": {
+            "Description": "VPC ID",
+            "Type": "String",
+            "Default": ""
+        }
+    },
+    "Resources": {
+        "JenkinsIAMRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyName": "gk-jenkins-policy",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "ec2:DescribeInstances",
+                                        "ec2:DescribeKeyPairs",
+                                        "ec2:DescribeInstances",
+                                        "ec2:GetLaunchTemplateData",
+                                        "ec2:RunInstances",
+                                        "ec2:StartInstances"
+                                    ],
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "JenkinsInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Roles": [
+                    {
+                        "Ref": "JenkinsIAMRole"
+                    }
+                ]
+            }
+        },
+        "JenkinsInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "InstanceType": "m5.large",
+                "ImageId": {
+                    "Ref": "JenkinsImageId"
+                },
+                "IamInstanceProfile": {
+                    "Ref": "JenkinsInstanceProfile"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Fn::GetAtt": [
+                            "JenkinsSecGrp",
+                            "GroupId"
+                        ]
+                    }
+                ],
+                "KeyName": {
+                    "Ref": "AWSKey"
+                },
+                "SubnetId": {
+                    "Ref": "SubnetIds"
+                },
+                "UserData": {
+                    "Fn::Base64": "#!/bin/bash\n# verbose display and exit on error\nset -ex\n# Update yum and install java 8 and remove openjdk java 7\nyum -y update\nyum -y install java-1.8.0\nyum -y remove java-1.7.0-openjdk\n# Add Jenkins repo\nsudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo\n# Add Jenkins GPG key\nsudo rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key\n# Install and start Jenkins\nsudo yum -y install jenkins\nsudo service jenkins start\nsudo chkconfig --add jenkins\n"
+                }
+            }
+        },
+        "JenkinsSecGrp": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupName": "gk_jenkins_sg",
+                "GroupDescription": "GK Jenkins SG",
+                "SecurityGroupIngress": [
+                    {
+                        "CidrIp": "72.225.196.48/32",
+                        "IpProtocol": "tcp",
+                        "FromPort": 8080,
+                        "ToPort": 8080
+                    },
+                    {
+                        "CidrIp": "72.225.196.48/32",
+                        "IpProtocol": "tcp",
+                        "FromPort": 22,
+                        "ToPort": 22
+                    },
+                    {
+                        "CidrIp": "12.182.246.98/32",
+                        "IpProtocol": "tcp",
+                        "FromPort": 8080,
+                        "ToPort": 8080
+                    },
+                    {
+                        "CidrIp": "12.182.246.98/32",
+                        "IpProtocol": "tcp",
+                        "FromPort": 22,
+                        "ToPort": 22
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VpcIdInput"
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "JenkinsIAMRole": {
+            "Description": "Jenkins Role ARN",
+            "Value": {
+                "Ref": "JenkinsIAMRole"
+            }
+        },
+        "JenkinsInstanceProfile": {
+            "Description": "Jenkins Instance Profile",
+            "Value": {
+                "Ref": "JenkinsInstanceProfile"
+            }
+        },
+        "JenkinsInstance": {
+            "Description": "Jenkins Instance ARN",
+            "Value": {
+                "Fn::GetAtt": [
+                    "JenkinsInstance",
+                    "PublicDnsName"
+                ]
+            }
+        },
+        "JenkinsSG": {
+            "Description": "Jenkins Security Group",
+            "Value": {
+                "Ref": "JenkinsSecGrp"
+            }
+        }
+    }
+}
