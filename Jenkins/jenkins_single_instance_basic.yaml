@@ -5,7 +5,7 @@ Parameters:
   JenkinsImageId:
     Description: Base image to use
     Type: AWS::EC2::Image::Id
-    Default: "xyz"
+    Default: ""
   AWSKey:
     Description: EC2 Key ID
     Type: String
