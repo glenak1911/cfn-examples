@@ -25,6 +25,7 @@ jobs:
       - name: Tag Change
         run: |
           set -x
+          git fetch --tags
           tag_list="$(git tag)"
           if [[ -z "$tag_list" ]]; then
             echo "No Tags"
