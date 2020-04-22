@@ -25,7 +25,10 @@ jobs:
       - name: Tag Change
         run: |
           set -x
-          git fetch --prune --unshallow
+          tag_list="$(git tag)"
+          if [[ -z "$tag_list" ]]; then
+            echo "No Tags"
+          fi
           latest_version_full="$(git tag | sort -r --version-sort | head -n1)"
           log=$(git log $latest_version_full..HEAD --pretty='%B')
           if [ -z "$latest_version_full" ]
