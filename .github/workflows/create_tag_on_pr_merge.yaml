@@ -25,7 +25,7 @@ jobs:
       - name: Tag Change
         run: |
           set -x
-          tag_list="$(git fetch --depth=1 origin +refs/tags/*:refs/tags/*)"
+          tag_list="$(git fetch --depth=1 origin +refs/tags/*:refs/tags/* --force)"
           if [[ -z "${tag_list}" ]]; then
             echo "No tags exist"
           fi
