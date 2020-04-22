@@ -4,7 +4,7 @@
         "JenkinsImageId": {
             "Description": "Base image to use",
             "Type": "AWS::EC2::Image::Id",
-            "Default": ""
+            "Default": "xyz"
         },
         "AWSKey": {
             "Description": "EC2 Key ID",
